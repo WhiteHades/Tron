@@ -86,18 +86,49 @@ public class modelGame {
     }
 
     private boolean hasCollided(modelPlayer player) {
-        return player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
-                player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight() ||
-                intersects(player, player.getLightTrail());
+        // Check for boundary collisions
+        if (player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
+                player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight()) {
+            return true;
+        }
+        // Check for collisions with the player's own light trail
+        if (intersects(player, player.getLightTrail())) { return true; }
+
+        // Check for collisions with the opponent's light trail
+        for (modelPlayer otherPlayer : players) {
+            if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) return true;
+        }
+        return false; // No collision detected
     }
 
-    private String determineWinner(modelPlayer loser) {
+    private String determineWinner(modelPlayer playerThatMoved) {
+        // Check if the moving player collided with their own light trail
+        if (intersects(playerThatMoved, playerThatMoved.getLightTrail())) {
+            return getOpponentName(playerThatMoved);
+        }
+
+        // Check if the moving player collided with the opponent's light trail
         for (modelPlayer player : players) {
-            if (player != loser) {
-                return player.getName();
+            if (player != playerThatMoved && intersects(playerThatMoved, player.getLightTrail())) {
+                return getOpponentName(playerThatMoved);
             }
         }
+
+        // Check boundary collisions
+        if (isOutOfBounds(playerThatMoved)) {
+            return getOpponentName(playerThatMoved);
+        }
         return null; // In case of a tie or other scenarios
+    }
+
+    private boolean isOutOfBounds(modelPlayer player) {
+        return player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
+                player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight();
+    }
+
+    private String getOpponentName(modelPlayer player) {
+        for (modelPlayer opponent : players) { if (opponent != player) { return opponent.getName(); } }
+        return null;
     }
 
     private void updateWinnerScore(String winnerName) {
