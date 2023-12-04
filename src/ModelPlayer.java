@@ -2,7 +2,7 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class modelPlayer {
+public class ModelPlayer {
     private String name;
     private Color color;
     private int score;
@@ -11,7 +11,7 @@ public class modelPlayer {
     private String direction;
     private List<Point> lightTrail;
 
-    public modelPlayer(String name, Color color) {
+    public ModelPlayer(String name, Color color) {
         this.name = name;
         this.color = color;
         this.score = 0;
@@ -19,7 +19,6 @@ public class modelPlayer {
         this.yPosition = 0;
         this.direction = "UP";
         this.lightTrail = new ArrayList<>();
-        updateLightTrail();
     }
 
     public void move(String newDirection) {

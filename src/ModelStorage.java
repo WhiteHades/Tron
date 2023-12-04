@@ -2,7 +2,7 @@ import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class modelStorage {
+public class ModelStorage {
     private final String dbUrl = "jdbc:mysql://localhost/tron";
     private final String dbUser = "root";
     private final String dbPassword = "powerrangersRED89";

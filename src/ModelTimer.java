@@ -1,12 +1,12 @@
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class modelTimer {
+public class ModelTimer {
     private int timeDone;
     private Timer timer;
     private TimerTask task;
 
-    public modelTimer() {
+    public ModelTimer() {
         this.timeDone = 0;
         this.timer = new Timer();
     }

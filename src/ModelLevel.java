@@ -1,9 +1,9 @@
-public class modelLevel {
+public class ModelLevel {
     private int level;
     private int width;
     private int height;
 
-    public modelLevel(int number, int width, int height) {
+    public ModelLevel(int number, int width, int height) {
         this.level = number;
         this.width = width;
         this.height = height;

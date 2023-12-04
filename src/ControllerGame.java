@@ -1,18 +1,20 @@
 import java.awt.*;
 import java.awt.event.KeyEvent;
 
-public class controllerGame {
-    private modelGame modelgame;
-    private viewGame viewgame;
+public class ControllerGame {
+    private ViewGame viewgame;
+    private ModelGame modelgame;
+    private ControllerStorage controllerstorage;
 
-    public controllerGame() {
-        this.modelgame = new modelGame();
-        this.viewgame = new viewGame(this);
+    public ControllerGame() {
+        this.modelgame = new ModelGame();
+        modelgame.startGame();
+        this.controllerstorage = new ControllerStorage();
+        this.viewgame = new ViewGame(this, controllerstorage);
     }
 
-    private void initializePlayers(String name1, Color color1, String name2, Color color2) {
+    public void initializePlayers(String name1, Color color1, String name2, Color color2) {
         modelgame.initializePlayers(name1, color1, name2, color2);
-        modelgame.startGame();
     }
 
     public void handlePlayerAction(KeyEvent e) {
@@ -21,11 +23,12 @@ public class controllerGame {
         String direction = determineDirection(e);
 
         if (!direction.isEmpty()) {
-            modelgame.movePlayer(playerId, direction);
+            ModelPlayer player = modelgame.getPlayers().get(playerId);
+            player.move(direction);
             viewgame.updateGame(); // Update the game view after each move
+            //modelgame.checkGameState(player);
+//            modelgame.movePlayer(playerId, direction);
         }
-
-        if (!direction.isEmpty()) { modelgame.movePlayer(playerId, direction); }
     }
 
     private int determinePlayerId(KeyEvent e) {
@@ -46,6 +49,7 @@ public class controllerGame {
             case KeyEvent.VK_A: direction = "LEFT"; break;
             case KeyEvent.VK_S: direction = "DOWN"; break;
             case KeyEvent.VK_D: direction = "RIGHT"; break;
+
             // Player 2 controls (Arrow keys)
             case KeyEvent.VK_UP: direction = "UP"; break;
             case KeyEvent.VK_LEFT: direction = "LEFT"; break;
@@ -54,9 +58,18 @@ public class controllerGame {
         } return direction;
     }
 
-    public modelGame getGameModel() { return modelgame; }
+    public void startGame() {
+        modelgame.startGame();
+        viewgame.updateGame();
 
-    public viewGame getGameView() { return viewgame;}
+        //TODO: extra i am putting here to see if it works, if it works keep it, if not, delete it
+        viewgame.getGamePanel().setVisible(true);
+        viewgame.getGamePanel().requestFocusInWindow();
+    }
+
+    public ModelGame getGameModel() { return modelgame; }
+
+    public ViewGame getGameView() { return viewgame;}
 
     // Other controller methods...
 }

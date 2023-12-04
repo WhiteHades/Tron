@@ -2,33 +2,33 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
-public class modelGame {
-    private ArrayList<modelPlayer> players;
-    private ArrayList<modelLevel> levels;
-    private modelLevel currentLevel;
-    private modelTimer timer;
+public class ModelGame {
+    private ArrayList<ModelPlayer> players;
+    private ArrayList<ModelLevel> levels;
+    private ModelLevel currentLevel;
+    private ModelTimer timer;
     private boolean gameInProgress;
     private int currentLevelIndex;
     private final int totalLevels = 10;
-    private modelStorage storage;
+    private ModelStorage storage;
 
-    public modelGame() {
+    public ModelGame() {
         initializeGameComponents();
         loadLevels();
     }
 
     private void initializeGameComponents() {
         players = new ArrayList<>();
-        timer = new modelTimer();
+        timer = new ModelTimer();
         gameInProgress = false;
         currentLevelIndex = 0;
         levels = new ArrayList<>();
-        storage = new modelStorage();
+        storage = new ModelStorage();
     }
 
     private void loadLevels() {
         for (int i = 1; i <= totalLevels; i++) {
-            levels.add(new modelLevel(i, 400 + i * 20, 400 + i * 20));
+            levels.add(new ModelLevel(i, 600 + i * 20, 600 + i * 20));
         }
     }
 
@@ -42,7 +42,7 @@ public class modelGame {
     private void setCurrentLevel() {
         if (currentLevelIndex < levels.size()) {
             currentLevel = levels.get(currentLevelIndex);
-            initializeGame();
+            initialiseGame();
         } else {
             endGame();
         }
@@ -52,40 +52,52 @@ public class modelGame {
         // Reset the game state for a new level
         // This typically includes resetting player positions and light trails
         int initialY = 10;
-        for (modelPlayer player : players) {
+        for (ModelPlayer player : players) {
             player.resetPlayer(0, initialY); // Reset each player's position
             initialY += 10;
         }
     }
 
-    private void initializeGame() {
-        int initialY = 10;
-        for (modelPlayer player : players) {
-            player.move("RIGHT");
-            player.setXPosition(0);
-            player.setYPosition(initialY);
-            initialY += 10;
+    private void initialiseGame() {
+        // Calculate the center of the game area
+        currentLevel = getCurrentLevel();
+        int centerX = currentLevel.getWidth() / 2;
+        int centerY = currentLevel.getHeight() / 2;
+
+        if (players.size() >= 2) {
+            ModelPlayer player1 = players.get(0);
+            ModelPlayer player2 = players.get(1);
+
+            // Position player1 slightly to the left of the center, facing right
+            player1.setXPosition(centerX - 20); // Adjust 20 to your game's scale
+            player1.setYPosition(centerY);
+            player1.move("RIGHT");
+
+            // Position player2 slightly to the right of the center, facing left
+            player2.setXPosition(centerX + 20); // Adjust 20 to your game's scale
+            player2.setYPosition(centerY);
+            player2.move("LEFT");
         }
     }
 
     public void movePlayer(int playerId, String direction) {
-        if (!gameInProgress) return;
+        //if (!gameInProgress) return;
 
-        modelPlayer player = players.get(playerId);
+        ModelPlayer player = players.get(playerId);
         player.move(direction);
         checkGameState(player);
     }
 
-    private void checkGameState(modelPlayer player) {
+    public void checkGameState(ModelPlayer player) {
         if (hasCollided(player)) {
-            timer.stopTimer();
+            //timer.stopTimer();
             String winnerName = determineWinner(player);
             updateWinnerScore(winnerName);
             advanceToNextLevel();
         }
     }
 
-    private boolean hasCollided(modelPlayer player) {
+    private boolean hasCollided(ModelPlayer player) {
         // Check for boundary collisions
         if (player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
                 player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight()) {
@@ -95,20 +107,20 @@ public class modelGame {
         if (intersects(player, player.getLightTrail())) { return true; }
 
         // Check for collisions with the opponent's light trail
-        for (modelPlayer otherPlayer : players) {
+        for (ModelPlayer otherPlayer : players) {
             if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) return true;
         }
         return false; // No collision detected
     }
 
-    private String determineWinner(modelPlayer playerThatMoved) {
+    private String determineWinner(ModelPlayer playerThatMoved) {
         // Check if the moving player collided with their own light trail
         if (intersects(playerThatMoved, playerThatMoved.getLightTrail())) {
             return getOpponentName(playerThatMoved);
         }
 
         // Check if the moving player collided with the opponent's light trail
-        for (modelPlayer player : players) {
+        for (ModelPlayer player : players) {
             if (player != playerThatMoved && intersects(playerThatMoved, player.getLightTrail())) {
                 return getOpponentName(playerThatMoved);
             }
@@ -121,18 +133,18 @@ public class modelGame {
         return null; // In case of a tie or other scenarios
     }
 
-    private boolean isOutOfBounds(modelPlayer player) {
+    private boolean isOutOfBounds(ModelPlayer player) {
         return player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
                 player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight();
     }
 
-    private String getOpponentName(modelPlayer player) {
-        for (modelPlayer opponent : players) { if (opponent != player) { return opponent.getName(); } }
+    private String getOpponentName(ModelPlayer player) {
+        for (ModelPlayer opponent : players) { if (opponent != player) { return opponent.getName(); } }
         return null;
     }
 
     private void updateWinnerScore(String winnerName) {
-        for (modelPlayer player : players) {
+        for (ModelPlayer player : players) {
             if (player.getName().equals(winnerName)) {
                 int newScore = player.getScore() + 1;
                 player.setScore(newScore);
@@ -162,7 +174,7 @@ public class modelGame {
 
     private void displayFinalScores() {
         System.out.println("Final Scores:");
-        for (modelPlayer player : players) {
+        for (ModelPlayer player : players) {
             System.out.println(player.getName() + " Score: " + player.getScore());
         }
     }
@@ -182,18 +194,18 @@ public class modelGame {
         timer.resetTimer(); // Timer is reset but players' scores are not reset
     }
 
-    private boolean intersects(modelPlayer player, List<Point> lightTrail) {
+    private boolean intersects(ModelPlayer player, List<Point> lightTrail) {
         Point playerPosition = new Point(player.getXPosition(), player.getYPosition());
         return lightTrail.contains(playerPosition);
     }
 
     public void initializePlayers(String name1, Color colour1, String name2, Color colour2) {
-        players.add(new modelPlayer(name1, colour1));
-        players.add(new modelPlayer(name2, colour2));
+        players.add(new ModelPlayer(name1, colour1));
+        players.add(new ModelPlayer(name2, colour2));
     }
 
     // Getters and setters...
-    public modelLevel getCurrentLevel() { return currentLevel; }
-    public modelTimer getTimer() { return timer; }
-    public List<modelPlayer> getPlayers() { return players; }
+    public ModelLevel getCurrentLevel() { return currentLevel; }
+    public ModelTimer getTimer() { return timer; }
+    public List<ModelPlayer> getPlayers() { return players; }
 }

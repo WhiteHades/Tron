@@ -1,23 +1,28 @@
-import javax.swing.*;
 import java.awt.*;
-import java.awt.event.KeyAdapter;
-import java.awt.event.KeyEvent;
-import java.awt.image.BufferedImage;
 import java.io.File;
+import javax.swing.*;
+import java.util.List;
 import java.io.IOException;
 import javax.imageio.ImageIO;
+import java.awt.event.KeyEvent;
+import java.awt.event.KeyAdapter;
+import java.awt.image.BufferedImage;
 
-public class viewGame {
-    private controllerGame controllergame;
-    private modelGame modelgame;
+public class ViewGame {
+    private JFrame frame;
     private JPanel gamePanel;
+    private ModelGame modelgame;
+    private ControllerGame controllergame;
+    private ControllerStorage controllerstorage;
     private BufferedImage player1Image, player2Image;
 
-    public viewGame(controllerGame controllergame) {
+    public ViewGame(ControllerGame controllergame, ControllerStorage controllerstorage) {
         this.controllergame = controllergame;
+        this.controllerstorage = controllerstorage;
         this.modelgame = controllergame.getGameModel();
         loadImages();
         initialiseGamePanel();
+        initialiseMenuBar();
     }
 
     private void loadImages() {
@@ -47,6 +52,11 @@ public class viewGame {
     }
 
     private void initialiseGamePanel() {
+        frame = new JFrame("Tron Game");
+
+        Dimension levelSize = getCurrentLevelSize();
+        frame.setSize(levelSize.width, levelSize.height);
+
         gamePanel = new JPanel() {
             @Override
             protected void paintComponent(Graphics g) {
@@ -64,30 +74,67 @@ public class viewGame {
             }
         });
 
-        gamePanel.setBackground(Color.BLACK);
+        frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+        frame.add(gamePanel);
+        frame.setLocationRelativeTo(null);
+        frame.setVisible(true);
+    }
+
+    private Dimension getCurrentLevelSize() {
+        ModelLevel currentLevel = modelgame.getCurrentLevel();
+        return new Dimension(currentLevel.getWidth(), currentLevel.getHeight());
+    }
+
+    private void initialiseMenuBar() {
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu gameMenu = new JMenu("Game");
+        JMenuItem startMenuItem = new JMenuItem("Start Game");
+        JMenuItem highScoresMenuItem = new JMenuItem("View High Scores");
+        JMenuItem exitMenuItem = new JMenuItem("Exit");
+
+        startMenuItem.addActionListener(e -> controllergame.startGame());
+        highScoresMenuItem.addActionListener(e -> displayHighScores());
+        exitMenuItem.addActionListener(e -> System.exit(0));
+
+        gameMenu.add(startMenuItem);
+        gameMenu.add(highScoresMenuItem);
+        gameMenu.add(exitMenuItem);
+
+        menuBar.add(gameMenu);
+        frame.setJMenuBar(menuBar);
+    }
+
+    private void displayHighScores() {
+        List<String> highScores = controllerstorage.getHighScores();
+        JOptionPane.showMessageDialog(frame, String.join("\n", highScores), "High Scores", JOptionPane.INFORMATION_MESSAGE);
     }
 
     private void drawGame(Graphics g) {
         // Draw players and light trails
-        if (modelgame.getPlayers().size() >= 2) {
+
+        // Draw both players from the start
+        if (!modelgame.getPlayers().isEmpty()) {
             drawPlayer(g, modelgame.getPlayers().get(0), player1Image);
             drawPlayer(g, modelgame.getPlayers().get(1), player2Image);
-            for (modelPlayer player : modelgame.getPlayers()) {
+
+            // Draw light trails for both players
+            for (ModelPlayer player : modelgame.getPlayers()) {
                 drawLightTrail(g, player);
             }
         }
     }
 
-    private void drawPlayer(Graphics g, modelPlayer player, BufferedImage image) {
+    private void drawPlayer(Graphics g, ModelPlayer player, BufferedImage image) {
         if (image != null) {
             g.drawImage(image, player.getXPosition(), player.getYPosition(), null);
         }
     }
 
-    private void drawLightTrail(Graphics g, modelPlayer player) {
+    private void drawLightTrail(Graphics g, ModelPlayer player) {
         g.setColor(player.getColor()); // Set the light trail color
         for (Point point : player.getLightTrail()) {
-            g.fillRect(point.x, point.y, 5, 5); // Draw each segment of the light trail
+            g.fillRect(point.x, point.y, 8, 8); // Draw each segment of the light trail
         }
     }
 
