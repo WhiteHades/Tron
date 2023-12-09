@@ -33,10 +33,13 @@ public class ModelGame {
     }
 
     public void startGame() {
-        gameInProgress = true;
-        currentLevelIndex = 0;
-        setCurrentLevel();
-        timer.startTimer();
+        if(!gameInProgress) {
+            gameInProgress = true;
+            currentLevelIndex = 0;
+            setCurrentLevel();
+            timer.resetTimer();
+            timer.startTimer();
+        }
     }
 
     private void setCurrentLevel() {
@@ -85,15 +88,24 @@ public class ModelGame {
 
         ModelPlayer player = players.get(playerId);
         player.move(direction);
-        checkGameState(player);
+        checkGameState();
     }
 
-    public void checkGameState(ModelPlayer player) {
-        if (hasCollided(player)) {
-            //timer.stopTimer();
-            String winnerName = determineWinner(player);
-            updateWinnerScore(winnerName);
-            advanceToNextLevel();
+    public void checkGameState() {
+//        if (hasCollided(player)) {
+//            //timer.stopTimer();
+//            String winnerName = determineWinner(player);
+//            updateWinnerScore(winnerName);
+//            advanceToNextLevel();
+//        }
+        for (ModelPlayer player : players) {
+            if (hasCollided(player)) {
+                timer.stopTimer();
+                String winnerName = determineWinner(player);
+                updateWinnerScore(winnerName);
+                advanceToNextLevel();
+                break; // Exit the loop if a collision occurs
+            }
         }
     }
 

@@ -14,9 +14,7 @@ public class ModelTimer {
     public void startTimer() {
         this.task = new TimerTask() {
             @Override
-            public void run() {
-                timeDone++;
-            }
+            public void run() { timeDone++; }
         };
         // Schedule the task to run every second (1000 milliseconds)
         this.timer.scheduleAtFixedRate(task, 1000, 1000);

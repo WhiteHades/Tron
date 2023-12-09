@@ -10,7 +10,9 @@ import java.awt.image.BufferedImage;
 
 public class ViewGame {
     private JFrame frame;
+    private Timer timer;
     private JPanel gamePanel;
+    private JLabel timerLabel;
     private ModelGame modelgame;
     private ControllerGame controllergame;
     private ControllerStorage controllerstorage;
@@ -20,9 +22,12 @@ public class ViewGame {
         this.controllergame = controllergame;
         this.controllerstorage = controllerstorage;
         this.modelgame = controllergame.getGameModel();
+        this.timerLabel = new JLabel("Time: 0");
+        timer = new Timer(1000, e -> updateTimerLabel());
+        timer.start();
         loadImages();
-        initialiseGamePanel();
-        initialiseMenuBar();
+        //initialiseGamePanel();
+        //initialiseMenuBar();
     }
 
     private void loadImages() {
@@ -51,7 +56,7 @@ public class ViewGame {
         return "DEFAULT"; // Default case
     }
 
-    private void initialiseGamePanel() {
+    public void initialiseGamePanel() {
         frame = new JFrame("Tron Game");
 
         Dimension levelSize = getCurrentLevelSize();
@@ -70,7 +75,12 @@ public class ViewGame {
         gamePanel.addKeyListener(new KeyAdapter() {
             @Override
             public void keyPressed(KeyEvent e) {
-                controllergame.handlePlayerAction(e);
+                controllergame.handlePlayerAction(e, true);
+            }
+
+            @Override
+            public void keyReleased(KeyEvent e) {
+                controllergame.handlePlayerAction(e, false);
             }
         });
 
@@ -85,7 +95,7 @@ public class ViewGame {
         return new Dimension(currentLevel.getWidth(), currentLevel.getHeight());
     }
 
-    private void initialiseMenuBar() {
+    public void initialiseMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
         JMenu gameMenu = new JMenu("Game");
@@ -93,7 +103,7 @@ public class ViewGame {
         JMenuItem highScoresMenuItem = new JMenuItem("View High Scores");
         JMenuItem exitMenuItem = new JMenuItem("Exit");
 
-        startMenuItem.addActionListener(e -> controllergame.startGame());
+        //startMenuItem.addActionListener(e -> controllergame.startGame());
         highScoresMenuItem.addActionListener(e -> displayHighScores());
         exitMenuItem.addActionListener(e -> System.exit(0));
 
@@ -102,7 +112,19 @@ public class ViewGame {
         gameMenu.add(exitMenuItem);
 
         menuBar.add(gameMenu);
+        menuBar.add(timerLabel);
+
         frame.setJMenuBar(menuBar);
+
+    }
+
+    public void updateTimerLabel() {
+        int currentTime = controllergame.getGameModel().getTimer().getTime();
+        timerLabel.setText("Time: " + currentTime);
+    }
+
+    public void updateTimerDisplay(int currentTime) {
+        timerLabel.setText("Time: " + currentTime);
     }
 
     private void displayHighScores() {
@@ -139,5 +161,5 @@ public class ViewGame {
     }
 
     public JPanel getGamePanel() { return gamePanel; }
-    public void updateGame() { gamePanel.repaint(); }
+    public void updateGame() { if(gamePanel != null) gamePanel.repaint(); }
 }

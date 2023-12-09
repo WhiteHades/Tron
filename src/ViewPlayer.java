@@ -61,7 +61,6 @@ public class ViewPlayer {
                 Color color1 = colorMap.get(colorComboBox1.getSelectedItem());
                 String name2 = playerNameField2.getText();
                 Color color2 = colorMap.get(colorComboBox2.getSelectedItem());
-                //controllerInformation.registerPlayer(name1, color1, name2, color2);
                 controllergame.initializePlayers(name1, color1, name2, color2);
                 controllergame.startGame(); // Start the game using ControllerGame
                 frame.dispose(); // Close the player registration window

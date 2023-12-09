@@ -17,29 +17,21 @@ public class ModelPlayer {
         this.score = 0;
         this.xPosition = 0;
         this.yPosition = 0;
-        this.direction = "UP";
+        //this.direction = "UP";
+        this.direction = "";
         this.lightTrail = new ArrayList<>();
     }
 
     public void move(String newDirection) {
-        this.direction = newDirection;
+        if(!newDirection.isEmpty() && !this.direction.equals(newDirection)) { this.direction = newDirection; }
+        //this.direction = newDirection;
         // Update position based on the direction
         switch (direction) {
-            case "UP":
-                yPosition--;
-                break;
-            case "DOWN":
-                yPosition++;
-                break;
-            case "LEFT":
-                xPosition--;
-                break;
-            case "RIGHT":
-                xPosition++;
-                break;
-            default:
-                // Handle invalid direction
-                break;
+            case "UP": yPosition--; break;
+            case "DOWN": yPosition++; break;
+            case "LEFT": xPosition--; break;
+            case "RIGHT": xPosition++; break;
+            default: break;
         } updateLightTrail();
     }
 
