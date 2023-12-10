@@ -17,9 +17,7 @@ public class ModelStorage {
                 pstmt.setInt(3, newPoints);
                 pstmt.executeUpdate();
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
     }
 
     public List<String> getHighScore() {
@@ -31,9 +29,7 @@ public class ModelStorage {
                     highscores.add(rs.getString("player_name") + ": " + rs.getInt("score"));
                 }
             }
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+        } catch (SQLException e) { e.printStackTrace(); }
         return highscores;
     }
 }

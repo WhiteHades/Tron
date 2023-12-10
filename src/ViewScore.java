@@ -5,12 +5,9 @@ import java.util.List;
 public class ViewScore {
     private JFrame frame;
     private JTextArea highScoreTextArea;
-    private ControllerStorage controllerstorage;
+    public ControllerGame controllergame;
 
-    public ViewScore(ControllerStorage controllerstorage) {
-        this.controllerstorage = controllerstorage;
-        initializeScoreView();
-    }
+    public ViewScore() { initializeScoreView(); }
 
     private void initializeScoreView() {
         frame = new JFrame("High Scores");
@@ -25,12 +22,10 @@ public class ViewScore {
     }
 
     public void display() {
-        List<String> highScores = controllerstorage.getHighScores();
-        StringBuilder sb = new StringBuilder();
-        for (String score : highScores) {
-            sb.append(score).append("\n");
-        }
-        highScoreTextArea.setText(sb.toString());
+        List<String> highScores = controllergame.modelgame.modelstorage.getHighScore();
+        StringBuilder stringbuilder = new StringBuilder();
+        for (String score : highScores) stringbuilder.append(score).append("\n");
+        highScoreTextArea.setText(stringbuilder.toString());
     }
 }
 

@@ -16,19 +16,18 @@ public class ModelTimer {
             @Override
             public void run() { timeDone++; }
         };
-        // Schedule the task to run every second (1000 milliseconds)
         this.timer.scheduleAtFixedRate(task, 1000, 1000);
     }
 
     public void stopTimer() {
         if (task != null) {
             task.cancel();
-            timer.purge(); // Removes cancelled tasks from the timer's task queue
+            timer.purge();
         }
     }
 
     public void resetTimer() {
-        stopTimer(); // Stop the current timer task
+        stopTimer();
         this.timeDone = 0;
     }
 
