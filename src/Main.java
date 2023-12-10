@@ -6,9 +6,8 @@ public class Main {
         // Initialize the controllers
         ControllerGame controllerGame = new ControllerGame();
         ControllerStorage controllerStorage = new ControllerStorage();
-        ControllerInformation controllerInformation = new ControllerInformation(controllerGame.getGameModel());
 
         // Initialize the Player Registration View
-        ViewPlayer viewPlayer = new ViewPlayer(controllerInformation, controllerGame);
+        ViewPlayer viewPlayer = new ViewPlayer(controllerGame);
     }
 }

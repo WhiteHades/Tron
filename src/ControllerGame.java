@@ -1,12 +1,11 @@
 import javax.swing.*;
 import java.awt.*;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import java.util.Map;
 import java.util.HashMap;
 import java.awt.event.KeyEvent;
 
 public class ControllerGame {
+    private boolean running;
     private ViewGame viewgame;
     private ModelGame modelgame;
     private Timer gameLoopTimer;
@@ -18,24 +17,28 @@ public class ControllerGame {
         this.keyStates = new HashMap<>();
         this.controllerstorage = new ControllerStorage();
         this.viewgame = new ViewGame(this, controllerstorage);
+        gameLoopTimer = new Timer(100, e -> updateGame());
 
-        // Initialize key states
         initializeKeyStates();
-        //startGameLoop();
+        //startGameLoopThread();
     }
 
-//    private void startGameLoop() {
-//        gameLoopTimer = new Timer(100, new ActionListener() {
-//            @Override
-//            public void actionPerformed(ActionEvent e) { updateGame(); }
-//        }); gameLoopTimer.start();
-//    }
+    // Starting the game loop thread
+    private void startGameLoopThread() {
+        running = true;
+        modelgame.getTimer().incrementTime();
+        gameLoopTimer.start();
+    }
 
     private void updateGame() {
         updatePlayerPositions();
         modelgame.checkGameState();
         viewgame.updateGame();
+        //modelgame.getTimer().incrementTime();
+        //checkGameOver();
     }
+
+    public void stopGame() { running = false; }
 
     private void initializeKeyStates() {
         keyStates.put(KeyEvent.VK_W, false);
@@ -52,26 +55,10 @@ public class ControllerGame {
         modelgame.initializePlayers(name1, color1, name2, color2);
     }
 
-//    public void updateGameView() {
-//        int currentTime = modelgame.getTimer().getTime();
-//        //viewgame.updateTimerDisplay(currentTime);
-//        viewgame.updateGame();
-//    }
-
     public void handlePlayerAction(KeyEvent e, boolean isPressed) {
-//        // Determine which player and action based on key event
-//        int playerId = determinePlayerId(e);
-//        String direction = determineDirection(e);
-//
-//        if (!direction.isEmpty()) {
-//            ModelPlayer player = modelgame.getPlayers().get(playerId);
-//            player.move(direction);
-//            updateGameView();
-//        }
-
-
         // Update key state
         keyStates.put(e.getKeyCode(), isPressed);
+        //if (isPressed) {keyStates.put(e.getKeyCode(), isPressed);}
 
         // Update player positions based on current key states
         updatePlayerPositions();
@@ -101,38 +88,6 @@ public class ControllerGame {
         }
     }
 
-    private String getLastDirection(int playerId) {
-        ModelPlayer player = modelgame.getPlayers().get(playerId);
-        return player.getDirection(); // Returns the last set direction of the player
-    }
-
-    private int determinePlayerId(KeyEvent e) {
-        // Player 1 controls (WASD)
-        if (e.getKeyCode() == KeyEvent.VK_W || e.getKeyCode() == KeyEvent.VK_A ||
-                e.getKeyCode() == KeyEvent.VK_S || e.getKeyCode() == KeyEvent.VK_D) {
-            return 0; // Index of Player 1
-        }
-        // Player 2 controls (Arrow keys)
-        return 1; // Index of Player 2
-    }
-
-    private String determineDirection(KeyEvent e) {
-        String direction = "";
-        switch (e.getKeyCode()) {
-            // Player 1 controls (WASD)
-            case KeyEvent.VK_W: direction = "UP"; break;
-            case KeyEvent.VK_A: direction = "LEFT"; break;
-            case KeyEvent.VK_S: direction = "DOWN"; break;
-            case KeyEvent.VK_D: direction = "RIGHT"; break;
-
-            // Player 2 controls (Arrow keys)
-            case KeyEvent.VK_UP: direction = "UP"; break;
-            case KeyEvent.VK_LEFT: direction = "LEFT"; break;
-            case KeyEvent.VK_DOWN: direction = "DOWN"; break;
-            case KeyEvent.VK_RIGHT: direction = "RIGHT"; break;
-        } return direction;
-    }
-
     public void startGame() {
         modelgame.startGame();
         viewgame.initialiseGamePanel();
@@ -140,10 +95,7 @@ public class ControllerGame {
         viewgame.updateGame();
         viewgame.getGamePanel().setVisible(true);
         viewgame.getGamePanel().requestFocusInWindow();
-
-        //startGameLoop();
     }
 
     public ModelGame getGameModel() { return modelgame; }
-    public ViewGame getGameView() { return viewgame;}
 }

@@ -9,11 +9,9 @@ public class ViewPlayer {
     private JFrame frame;
     private JTextField playerNameField1, playerNameField2;
     private JComboBox<String> colorComboBox1, colorComboBox2;
-    private ControllerInformation controllerInformation;
     private ControllerGame controllergame;
 
-    public ViewPlayer(ControllerInformation controllerInformation, ControllerGame controllergame) {
-        this.controllerInformation = controllerInformation;
+    public ViewPlayer(ControllerGame controllergame) {
         this.controllergame = controllergame;
         initializePlayerView();
     }

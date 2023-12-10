@@ -32,6 +32,8 @@ public class ModelTimer {
         this.timeDone = 0;
     }
 
+    public void incrementTime() { timeDone++; }
+
     public int getTime() {
         return timeDone;
     }

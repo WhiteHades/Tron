@@ -133,9 +133,7 @@ public class ViewGame {
     }
 
     private void drawGame(Graphics g) {
-        // Draw players and light trails
-
-        // Draw both players from the start
+//        // Draw both players from the start
         if (!modelgame.getPlayers().isEmpty()) {
             drawPlayer(g, modelgame.getPlayers().get(0), player1Image);
             drawPlayer(g, modelgame.getPlayers().get(1), player2Image);
@@ -154,9 +152,17 @@ public class ViewGame {
     }
 
     private void drawLightTrail(Graphics g, ModelPlayer player) {
-        g.setColor(player.getColor()); // Set the light trail color
-        for (Point point : player.getLightTrail()) {
-            g.fillRect(point.x, point.y, 8, 8); // Draw each segment of the light trail
+//        g.setColor(player.getColor()); // Set the light trail color
+//        for (Point point : player.getLightTrail()) {
+//            g.fillRect(point.x, point.y, 5, 5); // Draw each segment of the light trail
+//        }
+        g.setColor(player.getColor());
+        List<Point> trail = player.getLightTrail();
+        // Ensuring a continuous line
+        for (int i = 0; i < trail.size() - 1; i++) {
+            Point start = trail.get(i);
+            Point end = trail.get(i + 1);
+            g.drawLine(start.x, start.y, end.x, end.y);
         }
     }
 

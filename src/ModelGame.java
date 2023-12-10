@@ -56,7 +56,7 @@ public class ModelGame {
         // This typically includes resetting player positions and light trails
         int initialY = 10;
         for (ModelPlayer player : players) {
-            player.resetPlayer(0, initialY); // Reset each player's position
+            player.resetPlayer(800, initialY); // Reset each player's position
             initialY += 10;
         }
     }
@@ -92,12 +92,6 @@ public class ModelGame {
     }
 
     public void checkGameState() {
-//        if (hasCollided(player)) {
-//            //timer.stopTimer();
-//            String winnerName = determineWinner(player);
-//            updateWinnerScore(winnerName);
-//            advanceToNextLevel();
-//        }
         for (ModelPlayer player : players) {
             if (hasCollided(player)) {
                 timer.stopTimer();
@@ -139,9 +133,7 @@ public class ModelGame {
         }
 
         // Check boundary collisions
-        if (isOutOfBounds(playerThatMoved)) {
-            return getOpponentName(playerThatMoved);
-        }
+        if (isOutOfBounds(playerThatMoved)) { return getOpponentName(playerThatMoved); }
         return null; // In case of a tie or other scenarios
     }
 
@@ -177,8 +169,13 @@ public class ModelGame {
         }
     }
 
+    public boolean isGameInProgress() {
+        return gameInProgress;
+    }
+
     public void endGame() {
         gameInProgress = false;
+        timer.stopTimer(); // Ensure the timer stops when the game ends
         displayFinalScores();
         displayHighScores(); // Display top 10 high scores from the database
         restartGame();
@@ -202,7 +199,7 @@ public class ModelGame {
     private void restartGame() {
         currentLevelIndex = 0;
         setCurrentLevel();
-        resetGameState();
+        //resetGameState();
         timer.resetTimer(); // Timer is reset but players' scores are not reset
     }
 

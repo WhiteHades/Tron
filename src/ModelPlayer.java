@@ -17,14 +17,13 @@ public class ModelPlayer {
         this.score = 0;
         this.xPosition = 0;
         this.yPosition = 0;
-        //this.direction = "UP";
-        this.direction = "";
+        this.direction = "UP";
         this.lightTrail = new ArrayList<>();
     }
 
     public void move(String newDirection) {
         if(!newDirection.isEmpty() && !this.direction.equals(newDirection)) { this.direction = newDirection; }
-        //this.direction = newDirection;
+
         // Update position based on the direction
         switch (direction) {
             case "UP": yPosition--; break;
@@ -43,7 +42,8 @@ public class ModelPlayer {
         updateLightTrail();
     }
 
-    private void updateLightTrail() {lightTrail.add(new Point(xPosition, yPosition)); }
+    public void setDirection(String direction) { this.direction = direction; }
+    private void updateLightTrail() { lightTrail.add(new Point(xPosition, yPosition)); }
     public void setXPosition(int xPosition) { this.xPosition = xPosition; }
     public void setYPosition(int yPosition) { this.yPosition = yPosition; }
     public List<Point> getLightTrail() { return lightTrail; }
