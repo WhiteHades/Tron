@@ -11,10 +11,12 @@ public class ModelGame {
     private int currentLevelIndex;
     private final int totalLevels = 10;
     private ModelStorage storage;
+    private ControllerGame controllergame;
 
-    public ModelGame() {
+    public ModelGame(ControllerGame controllergame) {
         initializeGameComponents();
         loadLevels();
+        this.controllergame = controllergame;
     }
 
     private void initializeGameComponents() {
@@ -65,13 +67,11 @@ public class ModelGame {
             player1.setXPosition(centerX - 20); // Adjust 20 to your game's scale
             player1.setYPosition(centerY);
             player1.move("LEFT");
-            System.out.println(player1.getName() + " initial direction: " + player1.getDirection());
 
             // Position player2 slightly to the right of the center, facing left
             player2.setXPosition(centerX + 20); // Adjust 20 to your game's scale
             player2.setYPosition(centerY);
             player2.move("RIGHT");
-            System.out.println(player2.getName() + " initial direction: " + player2.getDirection());
         }
     }
 
@@ -84,19 +84,14 @@ public class ModelGame {
     private boolean hasCollided(ModelPlayer player) {
         // Check for boundary collisions
         if (player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
-                player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight()) {
-            System.out.println("Collision detected for player: " + player.getName() + "boundary");
-            return true;
-        }
+                player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight()) return true;
 
         // Check for collisions with the player's own light trail
-        if (intersects(player, player.getLightTrail())) { System.out.println("Collision detected for player: " +
-         player.getName() + "own light trail"); return true; }
+        if (intersects(player, player.getLightTrail())) return true;
 
         // Check for collisions with the opponent's light trail
         for (ModelPlayer otherPlayer : players) {
-            if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) { System.out.println(
-                    "Collision detected for player: " + player.getName() + "oppo light trail"); return true; }
+            if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) return true;
         }
         return false; // No collision detected
     }
@@ -140,17 +135,15 @@ public class ModelGame {
     }
 
     public void advanceToNextLevel() {
-        System.out.println("Advancing to next level");
         currentLevelIndex++;
-        System.out.println("Current level index: " + currentLevelIndex);
+
         if (currentLevelIndex < totalLevels) {
+            //displayFinalScores();
+            //displayHighScores();
             setCurrentLevel();
-            //timer.startTimer();
-        } else {
-            displayFinalScores();
-            displayHighScores();
-            //restartGame();
-        }
+            timer.resetTimer();
+            timer.startTimer();
+        } else { controllergame.endGameAndShowScores(); }
     }
 
     public boolean isGameInProgress() {
@@ -160,9 +153,6 @@ public class ModelGame {
     public void endGame() {
         gameInProgress = false;
         timer.stopTimer(); // Ensure the timer stops when the game ends
-        displayFinalScores();
-        displayHighScores(); // Display top 10 high scores from the database
-        //restartGame();
     }
 
     private void displayFinalScores() {
@@ -180,11 +170,14 @@ public class ModelGame {
         }
     }
 
-    private void restartGame() {
+    public void restartGame() {
         currentLevelIndex = 0;
         setCurrentLevel();
-        //resetGameState();
-        timer.resetTimer(); // Timer is reset but players' scores are not reset
+        for (ModelPlayer player : players) {
+            player.setScore(0); // Reset player's score
+        }
+        timer.resetTimer();
+        gameInProgress = false;
     }
 
     private boolean intersects(ModelPlayer player, List<Point> lightTrail) {
@@ -203,8 +196,16 @@ public class ModelGame {
         players.add(new ModelPlayer(name2, colour2));
     }
 
+    public void resetGameStateForNewGame() {
+        currentLevelIndex = 0;
+        setCurrentLevel();
+        timer.resetTimer();
+        gameInProgress = false;
+    }
+
     // Getters and setters...
     public ModelLevel getCurrentLevel() { return currentLevel; }
     public ModelTimer getTimer() { return timer; }
     public List<ModelPlayer> getPlayers() { return players; }
+    public int getCurrentLevelIndex() { return currentLevelIndex; }
 }

@@ -14,6 +14,7 @@ public class ViewGame {
     private JPanel gamePanel;
     private JLabel timerLabel;
     private ModelGame modelgame;
+    private JLabel currentLevelLabel;
     private ControllerGame controllergame;
     private ControllerStorage controllerstorage;
     private BufferedImage player1Image, player2Image;
@@ -23,6 +24,7 @@ public class ViewGame {
         this.controllerstorage = controllerstorage;
         this.modelgame = controllergame.getGameModel();
         this.timerLabel = new JLabel("Time: 0");
+        this.currentLevelLabel = new JLabel("Level: 1");
         timer = new Timer(1000, e -> updateTimerLabel());
         timer.start();
         //loadImages();
@@ -109,19 +111,20 @@ public class ViewGame {
         JMenuItem highScoresMenuItem = new JMenuItem("View High Scores");
         JMenuItem exitMenuItem = new JMenuItem("Exit");
 
-        //startMenuItem.addActionListener(e -> controllergame.startGame());
         highScoresMenuItem.addActionListener(e -> displayHighScores());
         exitMenuItem.addActionListener(e -> System.exit(0));
+        Component horizontalGap = Box.createHorizontalStrut(15);
 
         gameMenu.add(startMenuItem);
         gameMenu.add(highScoresMenuItem);
         gameMenu.add(exitMenuItem);
 
         menuBar.add(gameMenu);
+        menuBar.add(currentLevelLabel);
+        menuBar.add(horizontalGap); // Add the gap to the menu bar
         menuBar.add(timerLabel);
 
         frame.setJMenuBar(menuBar);
-
     }
 
     public void updateTimerLabel() {
@@ -131,6 +134,11 @@ public class ViewGame {
 
     public void updateTimerDisplay(int currentTime) {
         timerLabel.setText("Time: " + currentTime);
+    }
+
+    public void updateCurrentLevelDisplay() {
+        int currentLevel = controllergame.getGameModel().getCurrentLevelIndex() + 1;
+        currentLevelLabel.setText("Level: " + currentLevel);
     }
 
     private void displayHighScores() {

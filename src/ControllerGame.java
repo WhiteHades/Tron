@@ -1,30 +1,34 @@
 import javax.swing.*;
 import java.awt.*;
 import java.util.Map;
+import java.util.List;
 import java.util.HashMap;
 import java.awt.event.KeyEvent;
 
-public class ControllerGame {
+public class ControllerGame{
     private boolean running;
     public ViewGame viewgame;
     private ModelGame modelgame;
     private Timer gameLoopTimer;
     private Map<Integer, Boolean> keyStates;
+    private Map<Integer, String> player1Controls;
+    private Map<Integer, String> player2Controls;
     private ControllerStorage controllerstorage;
 
     public ControllerGame() {
-        this.modelgame = new ModelGame();
+        this.modelgame = new ModelGame(this);
         this.keyStates = new HashMap<>();
         this.controllerstorage = new ControllerStorage();
         this.viewgame = new ViewGame(this, controllerstorage);
 
-        initializeKeyStates();
+        //initializeKeyStates();
+        initializePlayerControls();
         startGameLoopThread();
     }
 
     // Starting the game loop thread
     private void startGameLoopThread() {
-        gameLoopTimer = new Timer(25, e -> updateGame());
+        gameLoopTimer = new Timer(100, e -> updateGame());
         running = true;
         gameLoopTimer.start();
     }
@@ -40,9 +44,29 @@ public class ControllerGame {
                 viewgame.showWinnerDialog(winnerName);
                 viewgame.initialiseGamePanel();
                 modelgame.advanceToNextLevel();
-            }
-            viewgame.updateGame();
+                viewgame.updateCurrentLevelDisplay();
+            } viewgame.updateGame();
         }
+    }
+
+    public void endGameAndShowScores() {
+        StringBuilder scoresMessage = new StringBuilder();
+        scoresMessage.append("Final Scores:\n");
+        for (ModelPlayer player : modelgame.getPlayers()) {
+            scoresMessage.append(player.getName()).append(" Score: ").append(player.getScore()).append("\n");
+        }
+        scoresMessage.append("\nRestart game?");
+
+        Object[] options = {"Ok"};
+        int n = JOptionPane.showOptionDialog(null, scoresMessage.toString(), "Game Over", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, options, options[0]);
+        if (n == JOptionPane.YES_OPTION) restartGame();
+    }
+
+    private void restartGame() {
+        modelgame.restartGame();
+        viewgame.updateCurrentLevelDisplay();
+        viewgame.initialiseGamePanel(); // Reinitialize the game panel for a new game
+        startGame(); // Start a new game
     }
 
     public void stopGame() {
@@ -50,6 +74,23 @@ public class ControllerGame {
         if (gameLoopTimer != null) {
             gameLoopTimer.stop();
         }
+    }
+
+    private void initializePlayerControls() {
+        player1Controls = new HashMap<>();
+        player2Controls = new HashMap<>();
+
+        // Player 1 controls (WASD)
+        player1Controls.put(KeyEvent.VK_W, "UP");
+        player1Controls.put(KeyEvent.VK_S, "DOWN");
+        player1Controls.put(KeyEvent.VK_A, "LEFT");
+        player1Controls.put(KeyEvent.VK_D, "RIGHT");
+
+        // Player 2 controls (Arrow keys)
+        player2Controls.put(KeyEvent.VK_UP, "UP");
+        player2Controls.put(KeyEvent.VK_DOWN, "DOWN");
+        player2Controls.put(KeyEvent.VK_LEFT, "LEFT");
+        player2Controls.put(KeyEvent.VK_RIGHT, "RIGHT");
     }
 
     private void initializeKeyStates() {
@@ -68,16 +109,36 @@ public class ControllerGame {
     }
 
     public void handlePlayerAction(KeyEvent e, boolean isPressed) {
-        // Update key state
-        keyStates.put(e.getKeyCode(), isPressed);
-        //if (isPressed) {keyStates.put(e.getKeyCode(), isPressed);}
+//        // Update key state
+//        //keyStates.put(e.getKeyCode(), isPressed);
+//        if (isPressed) {keyStates.put(e.getKeyCode(), isPressed);}
+//        System.out.println("Key pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
+//
+//        // Update player positions based on current key states
+//        updatePlayerPositions();
+//        int keyCode = e.getKeyCode();
+//
+//        // Check if the key state actually needs to be updated
+//        if (keyStates.get(keyCode) != isPressed) {
+//            keyStates.put(keyCode, isPressed);
+//            System.out.println("Key " + (isPressed ? "pressed: " : "released: ") + KeyEvent.getKeyText(keyCode));
+//
+//            // Update player positions based on current key states only if it's a key press
+//            if (isPressed) updatePlayerPositions();
+//        }
 
-        if(isPressed) {
-            System.out.println("Key Pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
+        int keyCode = e.getKeyCode();
+        System.out.println("Key " + (isPressed ? "pressed: " : "released: ") + KeyEvent.getKeyText(keyCode));
+
+        if (player1Controls.containsKey(keyCode)) {
+            if (isPressed) {
+                modelgame.getPlayers().get(0).setDirection(player1Controls.get(keyCode));
+            }
+        } else if (player2Controls.containsKey(keyCode)) {
+            if (isPressed) {
+                modelgame.getPlayers().get(1).setDirection(player2Controls.get(keyCode));
+            }
         }
-
-        // Update player positions based on current key states
-        updatePlayerPositions();
     }
 
     private void updatePlayerPositions() {
