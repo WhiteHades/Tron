@@ -6,7 +6,7 @@ import java.awt.event.KeyEvent;
 
 public class ControllerGame {
     private boolean running;
-    private ViewGame viewgame;
+    public ViewGame viewgame;
     private ModelGame modelgame;
     private Timer gameLoopTimer;
     private Map<Integer, Boolean> keyStates;
@@ -17,28 +17,40 @@ public class ControllerGame {
         this.keyStates = new HashMap<>();
         this.controllerstorage = new ControllerStorage();
         this.viewgame = new ViewGame(this, controllerstorage);
-        gameLoopTimer = new Timer(100, e -> updateGame());
 
         initializeKeyStates();
-        //startGameLoopThread();
+        startGameLoopThread();
     }
 
     // Starting the game loop thread
     private void startGameLoopThread() {
+        gameLoopTimer = new Timer(25, e -> updateGame());
         running = true;
-        modelgame.getTimer().incrementTime();
         gameLoopTimer.start();
     }
 
     private void updateGame() {
-        updatePlayerPositions();
-        modelgame.checkGameState();
-        viewgame.updateGame();
-        //modelgame.getTimer().incrementTime();
-        //checkGameOver();
+        // updatePlayerPositions();
+        // Update player positions and game state
+        for (ModelPlayer player : modelgame.getPlayers()) {
+            player.move(player.getDirection());
+            boolean collisionDetected = modelgame.checkGameState();
+            if (collisionDetected) {
+                String winnerName = modelgame.determineWinner(player); // Implement this method
+                viewgame.showWinnerDialog(winnerName);
+                viewgame.initialiseGamePanel();
+                modelgame.advanceToNextLevel();
+            }
+            viewgame.updateGame();
+        }
     }
 
-    public void stopGame() { running = false; }
+    public void stopGame() {
+        running = false;
+        if (gameLoopTimer != null) {
+            gameLoopTimer.stop();
+        }
+    }
 
     private void initializeKeyStates() {
         keyStates.put(KeyEvent.VK_W, false);
@@ -60,6 +72,10 @@ public class ControllerGame {
         keyStates.put(e.getKeyCode(), isPressed);
         //if (isPressed) {keyStates.put(e.getKeyCode(), isPressed);}
 
+        if(isPressed) {
+            System.out.println("Key Pressed: " + KeyEvent.getKeyText(e.getKeyCode()));
+        }
+
         // Update player positions based on current key states
         updatePlayerPositions();
     }
@@ -78,8 +94,6 @@ public class ControllerGame {
         updatePlayerMovement(1, KeyEvent.VK_DOWN, "DOWN");
         updatePlayerMovement(1, KeyEvent.VK_LEFT, "LEFT");
         updatePlayerMovement(1, KeyEvent.VK_RIGHT, "RIGHT");
-
-        viewgame.updateGame();
     }
 
     private void updatePlayerMovement(int playerId, int keyCode, String direction) {
@@ -95,6 +109,11 @@ public class ControllerGame {
         viewgame.updateGame();
         viewgame.getGamePanel().setVisible(true);
         viewgame.getGamePanel().requestFocusInWindow();
+    }
+
+    public Dimension getCurrentLevelSize() {
+        ModelLevel currentLevel = modelgame.getCurrentLevel();
+        return new Dimension(currentLevel.getWidth(), currentLevel.getHeight());
     }
 
     public ModelGame getGameModel() { return modelgame; }

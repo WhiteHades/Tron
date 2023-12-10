@@ -10,6 +10,7 @@ public class ModelPlayer {
     private int yPosition;
     private String direction;
     private List<Point> lightTrail;
+    int speed = 5;
 
     public ModelPlayer(String name, Color color) {
         this.name = name;
@@ -23,13 +24,14 @@ public class ModelPlayer {
 
     public void move(String newDirection) {
         if(!newDirection.isEmpty() && !this.direction.equals(newDirection)) { this.direction = newDirection; }
+        //this.direction = newDirection;
 
         // Update position based on the direction
         switch (direction) {
-            case "UP": yPosition--; break;
-            case "DOWN": yPosition++; break;
-            case "LEFT": xPosition--; break;
-            case "RIGHT": xPosition++; break;
+            case "UP": yPosition -= speed; break;
+            case "DOWN": yPosition += speed; break;
+            case "LEFT": xPosition -= speed; break;
+            case "RIGHT": xPosition += speed; break;
             default: break;
         } updateLightTrail();
     }
@@ -44,6 +46,7 @@ public class ModelPlayer {
 
     public void setDirection(String direction) { this.direction = direction; }
     private void updateLightTrail() { lightTrail.add(new Point(xPosition, yPosition)); }
+    public void resetLightTrail() { this.lightTrail.clear(); }
     public void setXPosition(int xPosition) { this.xPosition = xPosition; }
     public void setYPosition(int yPosition) { this.yPosition = yPosition; }
     public List<Point> getLightTrail() { return lightTrail; }

@@ -25,22 +25,22 @@ public class ViewGame {
         this.timerLabel = new JLabel("Time: 0");
         timer = new Timer(1000, e -> updateTimerLabel());
         timer.start();
-        loadImages();
+        //loadImages();
         //initialiseGamePanel();
         //initialiseMenuBar();
     }
 
-    private void loadImages() {
-        try {
-            if (modelgame.getPlayers().size() >= 2) {
-                player1Image = loadImageForColor(modelgame.getPlayers().get(0).getColor());
-                player2Image = loadImageForColor(modelgame.getPlayers().get(1).getColor());
-            }
-        } catch (IOException e) {
-            e.printStackTrace();
-            // Handle the exception if images cannot be loaded
-        }
-    }
+//    private void loadImages() {
+//        try {
+//            if (modelgame.getPlayers().size() >= 2) {
+//                player1Image = loadImageForColor(modelgame.getPlayers().get(0).getColor());
+//                player2Image = loadImageForColor(modelgame.getPlayers().get(1).getColor());
+//            }
+//        } catch (IOException e) {
+//            e.printStackTrace();
+//            // Handle the exception if images cannot be loaded
+//        }
+//    }
 
     private BufferedImage loadImageForColor(Color color) throws IOException {
         String colorName = getColorName(color);
@@ -57,9 +57,14 @@ public class ViewGame {
     }
 
     public void initialiseGamePanel() {
-        frame = new JFrame("Tron Game");
+        if (frame != null) {
+            frame.getContentPane().removeAll();
+//            frame.repaint();
+        } else {
+            frame = new JFrame("Tron Game");
+        }
 
-        Dimension levelSize = getCurrentLevelSize();
+        Dimension levelSize = controllergame.getCurrentLevelSize();
         frame.setSize(levelSize.width, levelSize.height);
 
         gamePanel = new JPanel() {
@@ -68,6 +73,10 @@ public class ViewGame {
                 super.paintComponent(g); drawGame(g);
             }
         };
+
+        gamePanel.setPreferredSize(levelSize);
+        gamePanel.setMinimumSize(levelSize);
+        gamePanel.setMaximumSize(levelSize);
 
         gamePanel.setFocusable(true);
         gamePanel.requestFocusInWindow();
@@ -86,13 +95,10 @@ public class ViewGame {
 
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
         frame.add(gamePanel);
+        frame.revalidate(); // Refresh layout
+        frame.repaint();    // Refresh visual appearance
         frame.setLocationRelativeTo(null);
         frame.setVisible(true);
-    }
-
-    private Dimension getCurrentLevelSize() {
-        ModelLevel currentLevel = modelgame.getCurrentLevel();
-        return new Dimension(currentLevel.getWidth(), currentLevel.getHeight());
     }
 
     public void initialiseMenuBar() {
@@ -133,15 +139,13 @@ public class ViewGame {
     }
 
     private void drawGame(Graphics g) {
-//        // Draw both players from the start
+        // Draw both players from the start
         if (!modelgame.getPlayers().isEmpty()) {
             drawPlayer(g, modelgame.getPlayers().get(0), player1Image);
             drawPlayer(g, modelgame.getPlayers().get(1), player2Image);
 
             // Draw light trails for both players
-            for (ModelPlayer player : modelgame.getPlayers()) {
-                drawLightTrail(g, player);
-            }
+            for (ModelPlayer player : modelgame.getPlayers()) drawLightTrail(g, player);
         }
     }
 
@@ -152,20 +156,16 @@ public class ViewGame {
     }
 
     private void drawLightTrail(Graphics g, ModelPlayer player) {
-//        g.setColor(player.getColor()); // Set the light trail color
-//        for (Point point : player.getLightTrail()) {
-//            g.fillRect(point.x, point.y, 5, 5); // Draw each segment of the light trail
-//        }
-        g.setColor(player.getColor());
-        List<Point> trail = player.getLightTrail();
-        // Ensuring a continuous line
-        for (int i = 0; i < trail.size() - 1; i++) {
-            Point start = trail.get(i);
-            Point end = trail.get(i + 1);
-            g.drawLine(start.x, start.y, end.x, end.y);
+        g.setColor(player.getColor()); // Set the light trail color
+        for (Point point : player.getLightTrail()) {
+            g.fillRect(point.x, point.y, 5, 5); // Draw each segment of the light trail
         }
     }
 
+    public void showWinnerDialog(String winnerName) {
+        JOptionPane.showMessageDialog(frame, winnerName + " wins!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
+    }
+
     public JPanel getGamePanel() { return gamePanel; }
-    public void updateGame() { if(gamePanel != null) gamePanel.repaint(); }
+    public void updateGame() { gamePanel.repaint(); }
 }

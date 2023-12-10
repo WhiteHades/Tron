@@ -28,7 +28,7 @@ public class ModelGame {
 
     private void loadLevels() {
         for (int i = 1; i <= totalLevels; i++) {
-            levels.add(new ModelLevel(i, 600 + i * 20, 600 + i * 20));
+            levels.add(new ModelLevel(i, 600 - i * 20, 600 - i * 20));
         }
     }
 
@@ -46,22 +46,12 @@ public class ModelGame {
         if (currentLevelIndex < levels.size()) {
             currentLevel = levels.get(currentLevelIndex);
             initialiseGame();
-        } else {
-            endGame();
-        }
-    }
-
-    private void resetGameState() {
-        // Reset the game state for a new level
-        // This typically includes resetting player positions and light trails
-        int initialY = 10;
-        for (ModelPlayer player : players) {
-            player.resetPlayer(800, initialY); // Reset each player's position
-            initialY += 10;
-        }
+        } else { endGame(); }
     }
 
     private void initialiseGame() {
+        for (ModelPlayer player : players) { player.resetLightTrail(); }
+
         // Calculate the center of the game area
         currentLevel = getCurrentLevel();
         int centerX = currentLevel.getWidth() / 2;
@@ -74,52 +64,44 @@ public class ModelGame {
             // Position player1 slightly to the left of the center, facing right
             player1.setXPosition(centerX - 20); // Adjust 20 to your game's scale
             player1.setYPosition(centerY);
-            player1.move("RIGHT");
+            player1.move("LEFT");
+            System.out.println(player1.getName() + " initial direction: " + player1.getDirection());
 
             // Position player2 slightly to the right of the center, facing left
             player2.setXPosition(centerX + 20); // Adjust 20 to your game's scale
             player2.setYPosition(centerY);
-            player2.move("LEFT");
+            player2.move("RIGHT");
+            System.out.println(player2.getName() + " initial direction: " + player2.getDirection());
         }
     }
 
-    public void movePlayer(int playerId, String direction) {
-        //if (!gameInProgress) return;
-
-        ModelPlayer player = players.get(playerId);
-        player.move(direction);
-        checkGameState();
-    }
-
-    public void checkGameState() {
+    public boolean checkGameState() {
         for (ModelPlayer player : players) {
-            if (hasCollided(player)) {
-                timer.stopTimer();
-                String winnerName = determineWinner(player);
-                updateWinnerScore(winnerName);
-                advanceToNextLevel();
-                break; // Exit the loop if a collision occurs
-            }
-        }
+            if (hasCollided(player)) { return true; }
+        } return false;
     }
 
     private boolean hasCollided(ModelPlayer player) {
         // Check for boundary collisions
         if (player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
                 player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight()) {
+            System.out.println("Collision detected for player: " + player.getName() + "boundary");
             return true;
         }
+
         // Check for collisions with the player's own light trail
-        if (intersects(player, player.getLightTrail())) { return true; }
+        if (intersects(player, player.getLightTrail())) { System.out.println("Collision detected for player: " +
+         player.getName() + "own light trail"); return true; }
 
         // Check for collisions with the opponent's light trail
         for (ModelPlayer otherPlayer : players) {
-            if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) return true;
+            if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) { System.out.println(
+                    "Collision detected for player: " + player.getName() + "oppo light trail"); return true; }
         }
         return false; // No collision detected
     }
 
-    private String determineWinner(ModelPlayer playerThatMoved) {
+    public String determineWinner(ModelPlayer playerThatMoved) {
         // Check if the moving player collided with their own light trail
         if (intersects(playerThatMoved, playerThatMoved.getLightTrail())) {
             return getOpponentName(playerThatMoved);
@@ -157,15 +139,17 @@ public class ModelGame {
         }
     }
 
-    private void advanceToNextLevel() {
+    public void advanceToNextLevel() {
+        System.out.println("Advancing to next level");
         currentLevelIndex++;
+        System.out.println("Current level index: " + currentLevelIndex);
         if (currentLevelIndex < totalLevels) {
             setCurrentLevel();
-            timer.startTimer();
+            //timer.startTimer();
         } else {
             displayFinalScores();
             displayHighScores();
-            restartGame();
+            //restartGame();
         }
     }
 
@@ -178,7 +162,7 @@ public class ModelGame {
         timer.stopTimer(); // Ensure the timer stops when the game ends
         displayFinalScores();
         displayHighScores(); // Display top 10 high scores from the database
-        restartGame();
+        //restartGame();
     }
 
     private void displayFinalScores() {
@@ -204,8 +188,14 @@ public class ModelGame {
     }
 
     private boolean intersects(ModelPlayer player, List<Point> lightTrail) {
+        if (lightTrail.isEmpty()) return false;
+
         Point playerPosition = new Point(player.getXPosition(), player.getYPosition());
-        return lightTrail.contains(playerPosition);
+
+        // Check all points of the light trail except the last one
+        for (int i = 0; i < lightTrail.size() - 1; i++) {
+            if (lightTrail.get(i).equals(playerPosition)) return true;
+        } return false;
     }
 
     public void initializePlayers(String name1, Color colour1, String name2, Color colour2) {
