@@ -1,6 +1,4 @@
-import javax.swing.*;
-import java.awt.*;
-
+// MOHAMMED EFAZ
 public class Main {
     public static void main(String[] args) {
         ControllerGame controllerGame = new ControllerGame();

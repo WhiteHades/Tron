@@ -5,6 +5,9 @@ import java.util.List;
 import java.util.HashMap;
 import java.awt.event.KeyEvent;
 
+/**
+ * Constructs a ControllerGame, initializes the game model and view, sets up player controls, and starts the game loop.
+ */
 public class ControllerGame{
     private boolean running;
     public ViewGame viewgame;
@@ -23,13 +26,18 @@ public class ControllerGame{
         startGameLoopThread();
     }
 
-    // Starting the game loop thread
+    /**
+     * Starts the game loop thread.
+     */
     private void startGameLoopThread() {
         gameLoopTimer = new Timer(100, e -> updateGame());
         running = true;
         gameLoopTimer.start();
     }
 
+    /**
+     * Updates the game state and view.
+     */
     private void updateGame() {
         // updatePlayerPositions();
         // Update player positions and game state
@@ -49,6 +57,9 @@ public class ControllerGame{
         }
     }
 
+    /**
+     * Ends the game and shows the scores.
+     */
     public void endGameAndShowScores() {
         for (ModelPlayer player : modelgame.getPlayers()) {
             String winnerName = modelgame.determineWinner(player);
@@ -56,7 +67,6 @@ public class ControllerGame{
         }
         List<String> highScores = modelgame.modelstorage.getHighScore();
         StringBuilder scoresMessage = new StringBuilder();
-        scoresMessage.append("Final Scores:\n");
 
         scoresMessage.append("Current Game Score:\n");
         for (ModelPlayer player : modelgame.getPlayers()) {
@@ -76,6 +86,9 @@ public class ControllerGame{
         else System.exit(0);
     }
 
+    /**
+     * Restarts the game.
+     */
     private void restartGame() {
         modelgame.restartGame();
         viewgame.updateCurrentLevelDisplay();
@@ -83,6 +96,9 @@ public class ControllerGame{
         startGame(); //
     }
 
+    /**
+     * Initializes the player controls.
+     */
     private void initializePlayerControls() {
         player1Controls = new HashMap<>();
         player2Controls = new HashMap<>();
@@ -100,10 +116,22 @@ public class ControllerGame{
         player2Controls.put(KeyEvent.VK_RIGHT, "RIGHT");
     }
 
+    /**
+     * Initializes the players.
+     * @param name1 Player 1 name
+     * @param color1 Player 1 color
+     * @param name2 Player 2 name
+     * @param color2 Player 2 color
+     */
     public void initializePlayers(String name1, Color color1, String name2, Color color2) {
         modelgame.initializePlayers(name1, color1, name2, color2);
     }
 
+    /**
+     * Handles player action events.
+     * @param e KeyEvent
+     * @param isPressed Whether the key is pressed or released
+     */
     public void handlePlayerAction(KeyEvent e, boolean isPressed) {
         int keyCode = e.getKeyCode();
 
@@ -114,26 +142,9 @@ public class ControllerGame{
         }
     }
 
-    private void updatePlayerPositions() {
-        if (modelgame.getPlayers().size() < 2) { return; }
-
-        // Player 1 movement
-        updatePlayerMovement(0, KeyEvent.VK_W, "UP");
-        updatePlayerMovement(0, KeyEvent.VK_S, "DOWN");
-        updatePlayerMovement(0, KeyEvent.VK_A, "LEFT");
-        updatePlayerMovement(0, KeyEvent.VK_D, "RIGHT");
-
-        // Player 2 movement
-        updatePlayerMovement(1, KeyEvent.VK_UP, "UP");
-        updatePlayerMovement(1, KeyEvent.VK_DOWN, "DOWN");
-        updatePlayerMovement(1, KeyEvent.VK_LEFT, "LEFT");
-        updatePlayerMovement(1, KeyEvent.VK_RIGHT, "RIGHT");
-    }
-
-    private void updatePlayerMovement(int playerId, int keyCode, String direction) {
-        if (keyStates.getOrDefault(keyCode, false)) modelgame.getPlayers().get(playerId).move(direction);
-    }
-
+    /**
+     * Starts the game.
+     */
     public void startGame() {
         modelgame.startGame();
         viewgame.initialiseGamePanel();

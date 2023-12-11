@@ -1,3 +1,6 @@
+/**
+ * ModelLevel.java
+ */
 public class ModelLevel {
     private int level;
     private int width;
@@ -8,8 +11,6 @@ public class ModelLevel {
         this.width = width;
         this.height = height;
     }
-
     public int getWidth() { return width; }
     public int getHeight() { return height; }
-    public int getLevel() { return level; }
 }

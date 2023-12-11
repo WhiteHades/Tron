@@ -5,6 +5,9 @@ import java.awt.event.ActionListener;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * View for player registration
+ */
 public class ViewPlayer {
     private JFrame frame;
     private JTextField playerNameField1, playerNameField2;
@@ -16,6 +19,9 @@ public class ViewPlayer {
         initializePlayerView();
     }
 
+    /**
+     * Initialize the player registration view
+     */
     private void initializePlayerView() {
         frame = new JFrame("Player Registration");
         frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);

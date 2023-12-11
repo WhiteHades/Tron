@@ -2,6 +2,9 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ModelGame class
+ */
 public class ModelGame {
     private ArrayList<ModelPlayer> players;
     private ArrayList<ModelLevel> levels;
@@ -20,6 +23,9 @@ public class ModelGame {
         //this.scoreUpdatedForLevel = false;
     }
 
+    /**
+     * Initializes the game components
+     */
     private void initializeGameComponents() {
         this.players = new ArrayList<>();
         this.timer = new ModelTimer();
@@ -29,12 +35,18 @@ public class ModelGame {
         this.modelstorage = new ModelStorage();
     }
 
+    /**
+     * Loads the levels
+     */
     private void loadLevels() {
         for (int i = 1; i <= totalLevels; i++) {
             levels.add(new ModelLevel(i, 600 - i * 20, 600 - i * 20));
         }
     }
 
+    /**
+     * Starts the game
+     */
     public void startGame() {
         if(!gameInProgress) {
             gameInProgress = true;
@@ -52,6 +64,9 @@ public class ModelGame {
         } else { endGame(); }
     }
 
+    /**
+     * Initialises the game
+     */
     private void initialiseGame() {
         for (ModelPlayer player : players) { player.resetLightTrail(); }
 
@@ -73,11 +88,17 @@ public class ModelGame {
         }
     }
 
+    /**
+     * Checks if the player has collided or not
+     */
     public boolean checkGameState() {
         for (ModelPlayer player : players) { if (hasCollided(player)) return true; }
         return false;
     }
 
+    /**
+     * Checks if the player has collided with either the boundary or a light trail (either their own or the opponent's)
+     */
     private boolean hasCollided(ModelPlayer player) {
         // Check for boundary collisions
         if (player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
@@ -93,6 +114,11 @@ public class ModelGame {
         return false;
     }
 
+    /**
+     * Determines the winner of the game
+     * @param playerThatMoved
+     * @return
+     */
     public String determineWinner(ModelPlayer playerThatMoved) {
         // Check if the moving player collided with their own light trail
         if (intersects(playerThatMoved, playerThatMoved.getLightTrail())) return getOpponentName(playerThatMoved);
@@ -109,16 +135,25 @@ public class ModelGame {
         return null;
     }
 
+    /**
+     * Checks if the player is out of bounds
+     */
     private boolean isOutOfBounds(ModelPlayer player) {
         return player.getXPosition() < 0 || player.getXPosition() >= currentLevel.getWidth() ||
                 player.getYPosition() < 0 || player.getYPosition() >= currentLevel.getHeight();
     }
 
+    /**
+     * Gets the opponent's name
+     */
     private String getOpponentName(ModelPlayer player) {
         for (ModelPlayer opponent : players) { if (opponent != player) return opponent.getName(); }
         return null;
     }
 
+    /**
+     * Updates the winner's score
+     */
     public void updateWinnerScore(String winnerName) {
         for (ModelPlayer player : players) {
             if (player.getName().equals(winnerName)) {
@@ -130,6 +165,9 @@ public class ModelGame {
         }
     }
 
+    /**
+     * Advances to the next level
+     */
     public void advanceToNextLevel() {
         currentLevelIndex++;
         if (currentLevelIndex < totalLevels) {
@@ -139,8 +177,14 @@ public class ModelGame {
         } else controllergame.endGameAndShowScores();
     }
 
+    /**
+     * Ends the game
+     */
     public void endGame() { gameInProgress = false; timer.stopTimer(); }
 
+    /**
+     * Restarts the game
+     */
     public void restartGame() {
         currentLevelIndex = 0;
         setCurrentLevel();
@@ -149,6 +193,9 @@ public class ModelGame {
         gameInProgress = false;
     }
 
+    /**
+     * Checks if the player intersects with the light trail
+     */
     private boolean intersects(ModelPlayer player, List<Point> lightTrail) {
         if (lightTrail.isEmpty()) return false;
 
@@ -158,6 +205,9 @@ public class ModelGame {
         return false;
     }
 
+    /**
+     * Initializes the players
+     */
     public void initializePlayers(String name1, Color colour1, String name2, Color colour2) {
         players.add(new ModelPlayer(name1, colour1));
         players.add(new ModelPlayer(name2, colour2));

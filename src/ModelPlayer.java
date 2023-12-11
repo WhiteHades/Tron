@@ -2,6 +2,13 @@ import java.awt.*;
 import java.util.ArrayList;
 import java.util.List;
 
+/**
+ * ModelPlayer
+ * This class is used to store the data of a player.
+ * It stores the player's name, color, score, position, direction, and light trail.
+ * It also has methods to update the player's position and light trail.
+ * It also has methods to get the player's name, color, score, position, direction, and light trail.
+ */
 public class ModelPlayer {
     private String name;
     private Color color;
@@ -22,11 +29,13 @@ public class ModelPlayer {
         this.lightTrail = new ArrayList<>();
     }
 
+    /**
+     * move
+     * This method is used to update the player's position and light trail.
+     * @param newDirection The new direction the player is moving in.
+     */
     public void move(String newDirection) {
         if(!newDirection.isEmpty() && !this.direction.equals(newDirection)) { this.direction = newDirection; }
-        //this.direction = newDirection;
-
-        // Update position based on the direction
         switch (direction) {
             case "UP": yPosition -= speed; break;
             case "DOWN": yPosition += speed; break;
@@ -34,14 +43,6 @@ public class ModelPlayer {
             case "RIGHT": xPosition += speed; break;
             default: break;
         } updateLightTrail();
-    }
-
-    public void resetPlayer(int x, int y) {
-        this.xPosition = x;
-        this.yPosition = y;
-        this.direction = "UP";
-        this.lightTrail = new ArrayList<>();
-        updateLightTrail();
     }
 
     public void setDirection(String direction) { this.direction = direction; }

@@ -4,6 +4,10 @@ import java.util.List;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
 
+/**
+ * ViewGame is responsible for displaying the game to the user.
+ * It is also responsible for displaying the high scores and the winner of the game.
+ */
 public class ViewGame {
     private JFrame frame;
     private Timer timer;
@@ -22,6 +26,9 @@ public class ViewGame {
         timer.start();
     }
 
+    /**
+     * Initialises the game panel and the menu bar.
+     */
     public void initialiseGamePanel() {
         if (frame != null) frame.getContentPane().removeAll();
         else frame = new JFrame("Tron Game");
@@ -61,6 +68,9 @@ public class ViewGame {
         frame.setVisible(true);
     }
 
+    /**
+     * Initialises the menu bar.
+     */
     public void initialiseMenuBar() {
         JMenuBar menuBar = new JMenuBar();
 
@@ -85,36 +95,62 @@ public class ViewGame {
         frame.setJMenuBar(menuBar);
     }
 
+    /**
+     * Updates the timer label.
+     */
     public void updateTimerLabel() {
         int currentTime = controllergame.getGameModel().getTimer().getTime();
         timerLabel.setText("Time: " + currentTime);
     }
 
+    /**
+     * Updates the current level label.
+     */
     public void updateCurrentLevelDisplay() {
         int currentLevel = controllergame.getGameModel().getCurrentLevelIndex() + 1;
         currentLevelLabel.setText("Level: " + currentLevel);
     }
 
+    /**
+     * Displays the high scores to the user.
+     */
     private void displayHighScores() {
         List<String> highScores = modelgame.modelstorage.getHighScore();
         JOptionPane.showMessageDialog(frame, String.join("\n", highScores), "High Scores", JOptionPane.INFORMATION_MESSAGE);
     }
 
+    /**
+     * Draws the game to the screen.
+     * @param g The graphics object to draw with.
+     */
     private void drawGame(Graphics g) {
         // Draw both players from the start
         if (!modelgame.getPlayers().isEmpty()) { for (ModelPlayer player : modelgame.getPlayers()) drawLightTrail(g,
                 player); }
     }
 
+    /**
+     * Draws the light trail of a player.
+     * @param g The graphics object to draw with.
+     * @param player The player whose light trail to draw.
+     */
     private void drawLightTrail(Graphics g, ModelPlayer player) {
         g.setColor(player.getColor());
         for (Point point : player.getLightTrail()) { g.fillRect(point.x, point.y, 5, 5); }
     }
 
+    /**
+     * Displays a dialog to the user when the game is over.
+     * @param winnerName The name of the winner.
+     */
     public void showWinnerDialog(String winnerName) {
         JOptionPane.showMessageDialog(frame, winnerName + " wins!", "Game Over", JOptionPane.INFORMATION_MESSAGE);
     }
 
     public JPanel getGamePanel() { return gamePanel; }
+
+    /**
+     * Repaints the game panel.
+     */
     public void updateGame() { gamePanel.repaint(); }
 }
