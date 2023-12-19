@@ -40,7 +40,7 @@ public class ModelGame {
      */
     private void loadLevels() {
         for (int i = 1; i <= totalLevels; i++) {
-            levels.add(new ModelLevel(i, 600 - i * 20, 600 - i * 20));
+            levels.add(new ModelLevel(i, 600, 600));
         }
     }
 
@@ -86,6 +86,17 @@ public class ModelGame {
             player2.setYPosition(centerY);
             player2.move("RIGHT");
         }
+
+        currentLevel.getObstacles().clear();
+
+        int numofobstalces = currentLevelIndex + 1;
+
+        for(int i = 0; i<numofobstalces; i++) {
+            int margin = 10;
+            int x = (int) (Math.random() * (currentLevel.getWidth()-margin));
+            int y = (int) (Math.random() * (currentLevel.getHeight()-margin));
+            currentLevel.getObstacles().add(new Point(x, y));
+        }
     }
 
     /**
@@ -94,6 +105,17 @@ public class ModelGame {
     public boolean checkGameState() {
         for (ModelPlayer player : players) { if (hasCollided(player)) return true; }
         return false;
+    }
+
+    private boolean collidedWithObstacles(ModelPlayer player) {
+        int obstacleheight = 12;
+        int obstaclewidth = 12;
+
+        Rectangle playerRectangle = new Rectangle(player.getXPosition(), player.getYPosition(), obstaclewidth, obstacleheight);
+        for (Point obstacle : currentLevel.getObstacles()) {
+            Rectangle obstacleRect = new Rectangle(obstacle.x, obstacle.y, obstacleheight, obstaclewidth);
+            if (playerRectangle.intersects(obstacleRect)) return true;
+        } return false;
     }
 
     /**
@@ -111,7 +133,8 @@ public class ModelGame {
         for (ModelPlayer otherPlayer : players) {
             if (otherPlayer != player && intersects(player, otherPlayer.getLightTrail())) return true;
         }
-        return false;
+
+        return collidedWithObstacles(player);
     }
 
     /**
@@ -132,6 +155,8 @@ public class ModelGame {
 
         // Check boundary collisions
         if (isOutOfBounds(playerThatMoved)) { return getOpponentName(playerThatMoved); }
+        if(collidedWithObstacles(playerThatMoved)) { return getOpponentName(playerThatMoved); }
+
         return null;
     }
 

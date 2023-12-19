@@ -16,6 +16,7 @@ public class ControllerGame{
     private Map<Integer, Boolean> keyStates;
     private Map<Integer, String> player1Controls;
     private Map<Integer, String> player2Controls;
+    private boolean isGamePaused = false;
 
     public ControllerGame() {
         this.modelgame = new ModelGame(this);
@@ -30,10 +31,12 @@ public class ControllerGame{
      * Starts the game loop thread.
      */
     private void startGameLoopThread() {
-        gameLoopTimer = new Timer(100, e -> updateGame());
+        gameLoopTimer = new Timer(35, e -> updateGame());
         running = true;
         gameLoopTimer.start();
     }
+
+    public void pauseGame(boolean pause) { isGamePaused  = pause; }
 
     /**
      * Updates the game state and view.
@@ -41,19 +44,21 @@ public class ControllerGame{
     private void updateGame() {
         // updatePlayerPositions();
         // Update player positions and game state
-        for (ModelPlayer player : modelgame.getPlayers()) {
-            player.move(player.getDirection());
-            boolean collisionDetected = modelgame.checkGameState();
-            if (collisionDetected) {
-                String winnerName = modelgame.determineWinner(player); // Implement this method
-                for (ModelPlayer player2 : modelgame.getPlayers()) {
-                    if (player2.getName().equals(winnerName)) { player2.setScore((player2.getScore() + 1)); }
-                }
-                viewgame.showWinnerDialog(winnerName);
-                modelgame.advanceToNextLevel();
-                viewgame.initialiseGamePanel();
-                viewgame.updateCurrentLevelDisplay();
-            } viewgame.updateGame();
+        if(!isGamePaused) {
+            for (ModelPlayer player : modelgame.getPlayers()) {
+                player.move(player.getDirection());
+                boolean collisionDetected = modelgame.checkGameState();
+                if (collisionDetected) {
+                    String winnerName = modelgame.determineWinner(player); // Implement this method
+                    for (ModelPlayer player2 : modelgame.getPlayers()) {
+                        if (player2.getName().equals(winnerName)) { player2.setScore((player2.getScore() + 1)); }
+                    }
+                    viewgame.showWinnerDialog(winnerName);
+                    modelgame.advanceToNextLevel();
+                    viewgame.initialiseGamePanel();
+                    viewgame.updateCurrentLevelDisplay();
+                } viewgame.updateGame();
+            }
         }
     }
 

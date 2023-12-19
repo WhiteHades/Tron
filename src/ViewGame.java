@@ -1,5 +1,9 @@
 import java.awt.*;
 import javax.swing.*;
+import javax.swing.event.MenuEvent;
+import javax.swing.event.MenuListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.util.List;
 import java.awt.event.KeyEvent;
 import java.awt.event.KeyAdapter;
@@ -25,6 +29,7 @@ public class ViewGame {
         timer = new Timer(1000, e -> updateTimerLabel());
         timer.start();
     }
+
 
     /**
      * Initialises the game panel and the menu bar.
@@ -75,15 +80,28 @@ public class ViewGame {
         JMenuBar menuBar = new JMenuBar();
 
         JMenu gameMenu = new JMenu("Game");
-        JMenuItem startMenuItem = new JMenuItem("Start Game");
+        //JMenuItem startMenuItem = new JMenuItem("Start Game");
         JMenuItem highScoresMenuItem = new JMenuItem("View High Scores");
         JMenuItem exitMenuItem = new JMenuItem("Exit");
 
-        highScoresMenuItem.addActionListener(e -> displayHighScores());
-        exitMenuItem.addActionListener(e -> System.exit(0));
-        Component horizontalGap = Box.createHorizontalStrut(15);
+        MenuListener menuListener = new MenuListener() {
+            @Override
+            public void menuSelected(MenuEvent e) { controllergame.pauseGame(true); }
+            @Override
+            public void menuDeselected(MenuEvent e) { controllergame.pauseGame(false); }
+            @Override
+            public void menuCanceled(MenuEvent e) { controllergame.pauseGame(false); }
+        };
 
-        gameMenu.add(startMenuItem);
+        gameMenu.addMenuListener(menuListener);
+        highScoresMenuItem.addActionListener(e -> {
+            controllergame.pauseGame(true);
+            displayHighScores();
+        });
+        exitMenuItem.addActionListener(e -> System.exit(0));
+
+        Component horizontalGap = Box.createHorizontalStrut(15);
+        //gameMenu.add(startMenuItem);
         gameMenu.add(highScoresMenuItem);
         gameMenu.add(exitMenuItem);
 
@@ -115,8 +133,26 @@ public class ViewGame {
      * Displays the high scores to the user.
      */
     private void displayHighScores() {
+        //List<String> highScores = modelgame.modelstorage.getHighScore();
+        //JOptionPane.showMessageDialog(frame, String.join("\n", highScores), "High Scores",JOptionPane.INFORMATION_MESSAGE);
+
         List<String> highScores = modelgame.modelstorage.getHighScore();
-        JOptionPane.showMessageDialog(frame, String.join("\n", highScores), "High Scores", JOptionPane.INFORMATION_MESSAGE);
+        JDialog highScoreDialog = new JDialog(frame, "High Scores", Dialog.ModalityType.APPLICATION_MODAL);
+        JTextArea highScoreText = new JTextArea(String.join("\n", highScores));
+        highScoreText.setEditable(false);
+
+        highScoreDialog.add(new JScrollPane(highScoreText));
+        highScoreDialog.setSize(300, 400);
+        highScoreDialog.setLocationRelativeTo(frame);
+
+        highScoreDialog.addWindowListener(new WindowAdapter() {
+            @Override
+            public void windowClosing(WindowEvent e) {
+                controllergame.pauseGame(false); // Resume the game when the dialog is closed
+            }
+        });
+
+        highScoreDialog.setVisible(true);
     }
 
     /**
@@ -127,6 +163,9 @@ public class ViewGame {
         // Draw both players from the start
         if (!modelgame.getPlayers().isEmpty()) { for (ModelPlayer player : modelgame.getPlayers()) drawLightTrail(g,
                 player); }
+
+        g.setColor(Color.WHITE);
+        for(Point obstacle : modelgame.getCurrentLevel().getObstacles()) { g.fillRect(obstacle.x, obstacle.y, 12, 12); }
     }
 
     /**
